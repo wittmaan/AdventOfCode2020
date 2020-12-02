@@ -28,6 +28,9 @@ print(f"solution part1: {get_matching_product_result(day1_input)}")
 def get_three_way_product_result(dat: List[int]):
     for idx1, val1 in enumerate(dat):
         for idx2, val2 in enumerate(dat):
+            if val1 == val2:
+                continue
+
             for idx3, val3 in enumerate(dat):
                 if val1 + val2 + val3 == 2020:
                     return val1 * val2 * val3
