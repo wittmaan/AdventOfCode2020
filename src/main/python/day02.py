@@ -1,7 +1,8 @@
-from dataclasses import dataclass
-from collections import Counter
-from typing import List
 import fileinput
+from collections import Counter
+from dataclasses import dataclass
+from typing import List
+
 
 # --- Day 2: Password Philosophy ---
 # --- Part one ---
@@ -62,7 +63,10 @@ def get_number_valid_passwords_part1(dat: List[str]):
 assert get_number_valid_passwords_part1(sample_input) == 2
 
 day2_input = [_.strip() for _ in fileinput.input()]
-print(f"solution part1: {get_number_valid_passwords_part1(day2_input)}")
+
+solution_part1 = get_number_valid_passwords_part1(day2_input)
+assert solution_part1 == 550
+print(f"solution part1: {solution_part1}")
 
 
 # --- Part two ---
@@ -77,4 +81,7 @@ def get_number_valid_passwords_part2(dat: List[str]):
 
 
 assert get_number_valid_passwords_part2(sample_input) == 1
-print(f"solution part2: {get_number_valid_passwords_part2(day2_input)}")
+
+solution_part2 = get_number_valid_passwords_part2(day2_input)
+assert solution_part2 == 634
+print(f"solution part2: {solution_part2}")

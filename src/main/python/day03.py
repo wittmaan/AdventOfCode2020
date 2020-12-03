@@ -1,7 +1,6 @@
-from dataclasses import dataclass
-from collections import Counter
-from typing import List, Set
 import fileinput
+from dataclasses import dataclass
+from typing import List
 
 # --- Day 3: Toboggan Trajectory ---
 # --- Part one ---
@@ -66,18 +65,21 @@ day3_input = [_.strip() for _ in fileinput.input()]
 
 input_slope = build_slope(day3_input)
 
-counted_trees = count_trees(delta_x=3, delta_y=1, slope=input_slope)
-assert counted_trees == 259
-print(f"solution part1: {counted_trees}")
+solution_part1 = count_trees(delta_x=3, delta_y=1, slope=input_slope)
+assert solution_part1 == 259
+print(f"solution part1: {solution_part1}")
 
 
 # --- Part two ---
 
-movements = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]
 
-result = 1
-for movement in movements:
-    result *= count_trees(delta_x=movement[0], delta_y=movement[1], slope=input_slope)
+def count_trees_multiple_movements(movements=[(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]):
+    result = 1
+    for movement in movements:
+        result *= count_trees(delta_x=movement[0], delta_y=movement[1], slope=input_slope)
+    return result
 
-assert result == 2224913600
-print(f"solution part2: {result}")
+
+solution_part2 = count_trees_multiple_movements()
+assert solution_part2 == 2224913600
+print(f"solution part2: {solution_part2}")
