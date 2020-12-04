@@ -19,13 +19,12 @@ hcl:#cfa07d eyr:2025 pid:166559648
 iyr:2011 ecl:brn hgt:59in"""
 
 
-def extract_passports(dat: List[str]):
+def extract_passports(dat: str):
     passport_list = []
-    for entry in dat:
+    for entry in dat.split("\n\n"):
         entry_splitted = entry.strip().replace("\n", " ").split(" ")
 
         passport = {}
-        # print(f"entry_splitted {entry_splitted}")
         for val in entry_splitted:
             key, value = val.split(":")
             passport[key] = value
@@ -35,9 +34,9 @@ def extract_passports(dat: List[str]):
     return passport_list
 
 
-sample_passports = extract_passports(sample_input.split("\n\n"))
+sample_passports = extract_passports(sample_input)
 
-REQUIRED_FIELDS = ("byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid")  # , "cid")
+REQUIRED_FIELDS = ("byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid")
 
 
 def is_valid_passport(passport: Dict[str, str]) -> bool:
@@ -59,7 +58,7 @@ assert count_valid_passports(sample_passports) == 2
 
 day4_input = "".join([_ for _ in fileinput.input()])
 
-passports = extract_passports(day4_input.split("\n\n"))
+passports = extract_passports(day4_input)
 
 solution_part1 = count_valid_passports(passports)
 print(f"solution part1: {solution_part1}")
