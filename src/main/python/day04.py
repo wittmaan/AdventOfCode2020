@@ -199,10 +199,6 @@ for valid_passport in valid_passports:
     assert is_valid_passport_part2(valid_passport) is True
 
 
-assert all(is_valid_passport_part2(passport) for passport in valid_passports)
-assert not any(is_valid_passport_part2(passport) for passport in invalid_passports)
-
-
 def count_valid_passports_part2(passports_input: List[Dict[str, str]]):
     return sum([is_valid_passport_part2(passport) for passport in passports_input])
 
