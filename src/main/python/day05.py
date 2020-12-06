@@ -1,7 +1,5 @@
 import fileinput
 
-import numpy as np
-
 
 def detect_position(dat: str, max_position=127, lower_movement="F", higher_movement="B"):
     actual_limits = (0, max_position)
@@ -20,8 +18,10 @@ def detect_position(dat: str, max_position=127, lower_movement="F", higher_movem
 
 sample_input = "FBFBBFFRLR"
 row = detect_position(sample_input[:7])
+assert row == 44
 
-columns = detect_position(sample_input[7:], max_position=7, lower_movement="L", higher_movement="R")
+column = detect_position(sample_input[7:], max_position=7, lower_movement="L", higher_movement="R")
+assert column == 5
 
 
 def calc_seat_id(dat: str):
@@ -33,7 +33,7 @@ def calc_seat_id(dat: str):
 day5_input = [_.strip() for _ in fileinput.input()]
 
 seat_ids = [calc_seat_id(boarding_pass) for boarding_pass in day5_input]
-solution_part1 = np.max(seat_ids)
+solution_part1 = max(seat_ids)
 assert solution_part1 == 842
 print(f"solution part1: {solution_part1}")
 
