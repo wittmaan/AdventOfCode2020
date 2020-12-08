@@ -60,18 +60,18 @@ assert solution_part1 == 272
 # --- Part two ---
 
 
-def count_containing_bags2(bag_dict, target="shiny gold bag"):
+def count_containing_bags(bag_dict, target="shiny gold bag"):
     count = 0
     for actual_bag, actual_count in bag_dict[target].items():
         # print(f"actual_bag {actual_bag}, actual_count={actual_count}")
-        count += actual_count * (count_containing_bags2(bag_dict=bag_dict, target=actual_bag) + 1)
+        count += actual_count * (count_containing_bags(bag_dict=bag_dict, target=actual_bag) + 1)
     return count
 
 
-sample_counts = count_containing_bags2(sample_bag_dict)
+sample_counts = count_containing_bags(sample_bag_dict)
 assert sample_counts == 32
 
-solution_part2 = count_containing_bags2(bag_dict_input)
+solution_part2 = count_containing_bags(bag_dict_input)
 solution_part2
 
 print(f"solution part2: {solution_part2}")
