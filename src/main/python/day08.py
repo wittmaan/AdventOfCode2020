@@ -24,18 +24,24 @@ class Instruction:
     operation: str
     argument: int
 
-    def __init__(self, input_line: str):
-        splitted = input_line.split()
-        self.operation, self.argument = splitted[0], int(splitted[1])
+
+def build_instructions(dat: List[str]) -> List[Instruction]:
+    instructions = []
+    for d in dat:
+        splitted = d.split()
+        instructions.append(Instruction(splitted[0], int(splitted[1])))
+    return instructions
 
 
-def run(dat: List[str]):
-    instructions = [Instruction(line) for line in dat]
+def run(instructions: List[Instruction]):
     positions_seen = set()
     position = 0
     accumulator = 0
 
     while position not in positions_seen:
+        if position == len(instructions):
+            return position, accumulator, True
+
         positions_seen.add(position)
         instruction = instructions[position]
 
@@ -49,16 +55,39 @@ def run(dat: List[str]):
         else:
             raise ValueError(f"unknown operation: {instruction.operation}")
 
-    return position, accumulator
+    return position, accumulator, False
 
 
-sample_result = run(sample_input)
-assert sample_result == (1, 5)
+sample_result = run(build_instructions(sample_input))
+assert sample_result == (1, 5, False)
 
 day8_input = [_.strip() for _ in fileinput.input()]
-solution_part1 = run(day8_input)
+solution_part1 = run(build_instructions(day8_input))
 print(f"solution part1: {solution_part1}")
-assert solution_part1 == (439, 1709)
+assert solution_part1 == (439, 1709, False)
 
 
 # --- Part two ---
+
+
+def detect_termination(instructions: List[Instruction]):
+    for idx, instruction in enumerate(instructions):
+        instructions_copy = instructions[:]
+
+        if instruction.operation == "nop":
+            instructions_copy[idx] = Instruction(operation="jmp", argument=instructions_copy[idx].argument)
+        elif instruction.operation == "jmp":
+            instructions_copy[idx] = Instruction(operation="nop", argument=instructions_copy[idx].argument)
+
+        tmp_result = run(instructions_copy)
+
+        if tmp_result[2]:
+            return tmp_result
+
+
+sample_result_part2 = detect_termination(build_instructions(sample_input))
+assert sample_result_part2 == (9, 8, True)
+
+solution_part2 = detect_termination(build_instructions(day8_input))
+print(f"solution part2: {solution_part2}")
+assert solution_part2 == (617, 1976, True)
