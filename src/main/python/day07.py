@@ -1,6 +1,9 @@
 import fileinput
 from collections import defaultdict
 
+# --- Day 7: Handy Haversacks ---
+# --- Part one ---
+
 sample_input = """light red bags contain 1 bright white bag, 2 muted yellow bags.
 dark orange bags contain 3 bright white bags, 4 muted yellow bags.
 bright white bags contain 1 shiny gold bag.
@@ -10,10 +13,6 @@ dark olive bags contain 3 faded blue bags, 4 dotted black bags.
 vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.
 faded blue bags contain no other bags.
 dotted black bags contain no other bags."""
-
-
-# --- Day 7: Handy Haversacks ---
-# --- Part one ---
 
 
 def detect_contents(dat: str):
@@ -72,7 +71,5 @@ sample_counts = count_containing_bags(sample_bag_dict)
 assert sample_counts == 32
 
 solution_part2 = count_containing_bags(bag_dict_input)
-solution_part2
-
 print(f"solution part2: {solution_part2}")
 assert solution_part2 == 172246
