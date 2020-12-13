@@ -74,5 +74,27 @@ assert solution_part1 == 552655238
 
 # --- Part two ---
 
-# print(f"solution part2: {solution_part2}")
-# assert solution_part2 == (617, 1976, True)
+
+def find_encryption_weakness(dat: List[int], preamble_length: int = 5):
+    invalid_number = find_first_not_sum(dat, preamble_length)
+
+    solution = None
+    for idx1, val in enumerate(dat):
+        idx2 = 0
+        while idx2 < idx1:
+            if sum(dat[idx2:idx1]) == invalid_number:
+                solution = dat[idx2:idx1]
+                break
+            idx2 += 1
+
+        if solution is not None:
+            break
+
+    return min(solution) + max(solution)
+
+
+assert find_encryption_weakness(sample_input) == 62
+
+solution_part2 = find_encryption_weakness(dat=day9_input, preamble_length=25)
+print(f"solution part2: {solution_part2}")
+assert solution_part2 == 70672245
