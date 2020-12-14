@@ -1,7 +1,6 @@
 import fileinput
-from collections import deque
+from collections import defaultdict
 
-from random import shuffle, seed
 from typing import List
 
 # --- Day 10: Adapter Array ---
@@ -80,6 +79,22 @@ assert solution_part1 == 1984
 
 # --- Part two ---
 
-# solution_part2 = find_encryption_weakness(dat=day9_input, preamble_length=25)
-# print(f"solution part2: {solution_part2}")
-# assert solution_part2 == 70672245
+
+def detect_arrangements(dat: List[int]) -> int:
+    dat.append(max(dat) + 3)
+    dat.sort()
+
+    count_dict = defaultdict(int)
+    count_dict[0] = 1
+
+    for d in dat[1:]:
+        count_dict[d] = count_dict[d - 3] + count_dict[d - 2] + count_dict[d - 1]
+
+    return max(count_dict.values())
+
+
+assert detect_arrangements(sample_input1) == 8
+
+solution_part2 = detect_arrangements(day10_input)
+print(f"solution part2: {solution_part2}")
+assert solution_part2 == 3543369523456
