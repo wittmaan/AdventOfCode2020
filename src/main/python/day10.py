@@ -58,7 +58,7 @@ sample_input2 = """28
 sample_input2 = [int(_) for _ in sample_input2]
 
 
-def calc_differences(dat: List[int]) -> List[int]:
+def calc_differences(dat: List[int]) -> int:
     dat.append(0)
     dat.append(max(dat) + 3)
     dat.sort()
