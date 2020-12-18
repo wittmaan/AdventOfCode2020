@@ -1,10 +1,13 @@
 import fileinput
 from copy import deepcopy
-
 from typing import List
+
+import numpy as np
+from numba import njit
 
 # --- Day 11: Seating System ---
 # --- Part one ---
+
 
 sample_input = """L.LL.LL.LL
 LLLLLLL.LL
@@ -19,18 +22,26 @@ L.LLLLL.LL""".split(
     "\n"
 )
 
-EMPTY_SEAT = "L"
-OCCUPIED_SEAT = "#"
-FLOOR = "."
+EMPTY_SEAT_ORIG = "L"
+OCCUPIED_SEAT_ORIG = "#"
+FLOOR_ORIG = "."
 
 
-def show_grid(grid: List[List[str]]):
-    print("\n".join(["".join([col for col in row]) for row in grid]))
+EMPTY_SEAT = 0
+OCCUPIED_SEAT = 1
+FLOOR = 2
+
+
+POSITIONS_MAPPING = {EMPTY_SEAT_ORIG: EMPTY_SEAT, OCCUPIED_SEAT_ORIG: OCCUPIED_SEAT, FLOOR_ORIG: FLOOR}
+
+
+def show_grid(grid: np.ndarray):
+    print("\n".join(["".join([str(col) for col in row]) for row in grid]))
     print("-------------------------------")
 
 
 def detect_stable_state(grid_input: List[str]):
-    grid = [list(_.strip()) for _ in grid_input]
+    grid = np.array([[POSITIONS_MAPPING[act_position] for act_position in list(_.strip())] for _ in grid_input])
 
     num_rows = len(grid)
     num_cols = len(grid[0])
@@ -39,7 +50,7 @@ def detect_stable_state(grid_input: List[str]):
         # show_grid(grid)
 
         new_grid = step(grid, num_rows, num_cols)
-        if new_grid == grid:
+        if (new_grid == grid).all():
             break
 
         grid = new_grid
@@ -48,9 +59,8 @@ def detect_stable_state(grid_input: List[str]):
     return num_occupied_seats
 
 
-def count_occupied_neighbor_seats(
-    grid: List[List[str]], idx_row: int, idx_col: int, num_rows: int, num_cols: int
-) -> int:
+@njit
+def count_occupied_neighbor_seats(grid: np.ndarray, idx_row: int, idx_col: int, num_rows: int, num_cols: int) -> int:
     count = 0
     for delta_row in [-1, 0, 1]:
         for delta_col in [-1, 0, 1]:
@@ -63,7 +73,8 @@ def count_occupied_neighbor_seats(
     return count
 
 
-def get_new_value(grid: List[List[str]], idx_row: int, idx_col: int, num_rows: int, num_cols: int):
+@njit
+def get_new_value(grid: np.ndarray, idx_row: int, idx_col: int, num_rows: int, num_cols: int):
     actual_value = grid[idx_row][idx_col]
 
     count = count_occupied_neighbor_seats(grid, idx_row, idx_col, num_rows, num_cols)
@@ -76,7 +87,7 @@ def get_new_value(grid: List[List[str]], idx_row: int, idx_col: int, num_rows: i
         return actual_value
 
 
-def step(grid: List[List[str]], num_rows: int, num_cols: int):
+def step(grid: np.ndarray, num_rows: int, num_cols: int):
     grid_copy = deepcopy(grid)
 
     for idx_row, val_row in enumerate(grid):
