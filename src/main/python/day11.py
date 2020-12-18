@@ -1,7 +1,5 @@
 import fileinput
-from collections import defaultdict
 from copy import deepcopy
-from dataclasses import dataclass
 
 from typing import List
 
@@ -21,74 +19,80 @@ L.LLLLL.LL""".split(
     "\n"
 )
 
-sample_input = [list(_.strip()) for _ in sample_input]
-
-print(sample_input)
-
-# @dataclass
-# class Position:
-
 EMPTY_SEAT = "L"
 OCCUPIED_SEAT = "#"
 FLOOR = "."
 
 
-def detect_stable_state(grid: List[str]):
+def show_grid(grid: List[List[str]]):
+    print("\n".join(["".join([col for col in row]) for row in grid]))
+    print("-------------------------------")
+
+
+def detect_stable_state(grid_input: List[str]):
+    grid = [list(_.strip()) for _ in grid_input]
+
     num_rows = len(grid)
     num_cols = len(grid[0])
 
-    step(grid, num_rows, num_cols)
+    while True:
+        # show_grid(grid)
+
+        new_grid = step(grid, num_rows, num_cols)
+        if new_grid == grid:
+            break
+
+        grid = new_grid
+
+    num_occupied_seats = sum(seat == OCCUPIED_SEAT for row in grid for seat in row)
+    return num_occupied_seats
 
 
-def count_occupied_seats(grid: List[str], idx_row: int, idx_col: int, num_rows: int, num_cols: int) -> int:
+def count_occupied_neighbor_seats(
+    grid: List[List[str]], idx_row: int, idx_col: int, num_rows: int, num_cols: int
+) -> int:
     count = 0
     for delta_row in [-1, 0, 1]:
         for delta_col in [-1, 0, 1]:
             if delta_row or delta_col:
                 new_row = idx_row + delta_row
                 new_col = idx_col + delta_col
-
-                while 0 <= new_row < num_cols and 0 <= new_col < num_rows:
-                    if grid[new_row][new_col] == "#":
-                        count += 1
-
-                    new_row += 1
-                    new_col += 1
+                if 0 <= new_row < num_rows and 0 <= new_col < num_cols and grid[new_row][new_col] == OCCUPIED_SEAT:
+                    count += 1
 
     return count
 
 
-def get_new_value(grid: List[str], idx_row: int, idx_col: int, num_rows: int, num_cols: int):
+def get_new_value(grid: List[List[str]], idx_row: int, idx_col: int, num_rows: int, num_cols: int):
     actual_value = grid[idx_row][idx_col]
 
-    count = count_occupied_seats(grid, idx_row, idx_col, num_rows, num_cols)
-    print(f"count={count}")
+    count = count_occupied_neighbor_seats(grid, idx_row, idx_col, num_rows, num_cols)
 
-    # if actual_value == EMPTY_SEAT:
+    if actual_value == EMPTY_SEAT and count == 0:
+        return OCCUPIED_SEAT
+    elif actual_value == OCCUPIED_SEAT and count >= 4:
+        return EMPTY_SEAT
+    else:
+        return actual_value
 
-    return "2"
 
-
-def step(grid: List[str], num_rows: int, num_cols: int):
+def step(grid: List[List[str]], num_rows: int, num_cols: int):
     grid_copy = deepcopy(grid)
 
     for idx_row, val_row in enumerate(grid):
-        # print("new_row")
         for idx_col, val_col in enumerate(val_row):
-            # print(val_col)
             grid_copy[idx_row][idx_col] = get_new_value(grid, idx_row, idx_col, num_rows, num_cols)
 
-
-detect_stable_state(sample_input)
-
-
-# sample_input1 = [int(_) for _ in sample_input1]
+    return grid_copy
 
 
-# day10_input = [int(_.strip()) for _ in fileinput.input()]
-# solution_part1 = calc_differences(dat=day10_input)
-# print(f"solution part1: {solution_part1}")
-# assert solution_part1 == 1984
+assert detect_stable_state(sample_input) == 37
+
+
+puzzle_input = [_.strip() for _ in fileinput.input()]
+solution_part1 = detect_stable_state(puzzle_input)
+print(f"solution part1: {solution_part1}")
+assert solution_part1 == 2418
 
 
 # --- Part two ---
