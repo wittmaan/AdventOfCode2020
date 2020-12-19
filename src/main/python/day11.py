@@ -35,28 +35,40 @@ FLOOR = 2
 POSITIONS_MAPPING = {EMPTY_SEAT_ORIG: EMPTY_SEAT, OCCUPIED_SEAT_ORIG: OCCUPIED_SEAT, FLOOR_ORIG: FLOOR}
 
 
-def show_grid(grid: np.ndarray):
-    print("\n".join(["".join([str(col) for col in row]) for row in grid]))
-    print("-------------------------------")
+class StableStateDetector:
+    def __init__(self, grid_input: List[str]):
+        self.grid = np.array(
+            [[POSITIONS_MAPPING[act_position] for act_position in list(_.strip())] for _ in grid_input]
+        )
+        self.num_rows = len(self.grid)
+        self.num_cols = len(self.grid[0])
+        self.num_occupied_seats = self.run()
 
+    def run(self):
 
-def detect_stable_state(grid_input: List[str]):
-    grid = np.array([[POSITIONS_MAPPING[act_position] for act_position in list(_.strip())] for _ in grid_input])
+        while True:
+            # self.show_grid()
 
-    num_rows = len(grid)
-    num_cols = len(grid[0])
+            new_grid = self.step()
+            if (new_grid == self.grid).all():
+                break
 
-    while True:
-        # show_grid(grid)
+            self.grid = new_grid
 
-        new_grid = step(grid, num_rows, num_cols)
-        if (new_grid == grid).all():
-            break
+        num_occupied_seats = sum(seat == OCCUPIED_SEAT for row in self.grid for seat in row)
+        return num_occupied_seats
 
-        grid = new_grid
+    def step(self):
+        grid_copy = deepcopy(self.grid)
 
-    num_occupied_seats = sum(seat == OCCUPIED_SEAT for row in grid for seat in row)
-    return num_occupied_seats
+        for idx_row, val_row in enumerate(grid_copy):
+            for idx_col, val_col in enumerate(val_row):
+                grid_copy[idx_row][idx_col] = get_new_value(self.grid, idx_row, idx_col, self.num_rows, self.num_cols)
+        return grid_copy
+
+    def show_grid(self):
+        print("\n".join(["".join([str(col) for col in row]) for row in self.grid]))
+        print("-------------------------------")
 
 
 @njit
@@ -87,21 +99,10 @@ def get_new_value(grid: np.ndarray, idx_row: int, idx_col: int, num_rows: int, n
         return actual_value
 
 
-def step(grid: np.ndarray, num_rows: int, num_cols: int):
-    grid_copy = deepcopy(grid)
-
-    for idx_row, val_row in enumerate(grid):
-        for idx_col, val_col in enumerate(val_row):
-            grid_copy[idx_row][idx_col] = get_new_value(grid, idx_row, idx_col, num_rows, num_cols)
-
-    return grid_copy
-
-
-assert detect_stable_state(sample_input) == 37
-
+assert StableStateDetector(sample_input).num_occupied_seats == 37
 
 puzzle_input = [_.strip() for _ in fileinput.input()]
-solution_part1 = detect_stable_state(puzzle_input)
+solution_part1 = StableStateDetector(puzzle_input).num_occupied_seats
 print(f"solution part1: {solution_part1}")
 assert solution_part1 == 2418
 
