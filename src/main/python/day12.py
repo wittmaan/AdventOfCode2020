@@ -1,4 +1,6 @@
+import fileinput
 from dataclasses import dataclass
+from math import cos, radians, sin
 from typing import List
 
 
@@ -26,10 +28,9 @@ F11""".split(
     "\n"
 )
 
-print(sample_input)
 
-instructions = [Instruction(_[0], int(_[1:])) for _ in sample_input]
-print(instructions)
+def build_instructions(dat: List[str]) -> List[Instruction]:
+    return [Instruction(_[0], int(_[1:])) for _ in dat]
 
 
 def detect_final_position(instructions: List[Instruction]):
@@ -45,15 +46,23 @@ def detect_final_position(instructions: List[Instruction]):
             position.x += instruction.value
         elif instruction.action == "W":
             position.x -= instruction.value
+        elif instruction.action == "L":
+            direction += instruction.value
+        elif instruction.action == "R":
+            direction -= instruction.value
+        elif instruction.action == "F":
+            position.x += int(cos(radians(direction))) * instruction.value
+            position.y += int(sin(radians(direction))) * instruction.value
 
-    return position
+    return abs(position.x) + abs(position.y)
 
-print(detect_final_position(instructions))
 
-# puzzle_input = [_.strip() for _ in fileinput.input()]
-# solution_part1 = StableStateDetector(puzzle_input).num_occupied_seats
-# print(f"solution part1: {solution_part1}")
-# assert solution_part1 == 2418
+assert detect_final_position(build_instructions(sample_input)) == 25
+
+puzzle_input = [_.strip() for _ in fileinput.input()]
+solution_part1 = detect_final_position(build_instructions(puzzle_input))
+print(f"solution part1: {solution_part1}")
+assert solution_part1 == 923
 
 
 # --- Part two ---
