@@ -2,6 +2,7 @@ import fileinput
 from dataclasses import dataclass
 from math import cos, radians, sin
 from typing import List
+import numpy as np
 
 
 # --- Day 12: Rain Risk ---
@@ -10,8 +11,8 @@ from typing import List
 
 @dataclass
 class Position:
-    x: int
-    y: int
+    x: float
+    y: float
 
 
 @dataclass
@@ -67,15 +68,42 @@ assert solution_part1 == 923
 
 # --- Part two ---
 
-# assert (
-#     StableStateDetector(
-#         grid_input=sample_input, visible_occupied_seats_limit=5, find_first_mode=True
-#     ).num_occupied_seats
-#     == 26
-# )
-#
-# solution_part2 = StableStateDetector(
-#     grid_input=puzzle_input, visible_occupied_seats_limit=5, find_first_mode=True
-# ).num_occupied_seats
-# print(f"solution part2: {solution_part2}")
-# assert solution_part2 == 2144
+
+def rotate(position, degrees):
+    theta = np.radians(degrees)
+    c = cos(theta)
+    s = sin(theta)
+    R = np.array(((c, -s), (s, c)))
+    result = np.matmul(R, np.array([position.x, position.y]))
+    return Position(result[0], result[1])
+
+
+def detect_final_position_with_waypoint(instructions: List[Instruction]):
+    position: Position = Position(0, 0)
+    waypoint_position: Position = Position(10, 1)
+
+    for instruction in instructions:
+        if instruction.action == "N":
+            waypoint_position.y += instruction.value
+        elif instruction.action == "S":
+            waypoint_position.y -= instruction.value
+        elif instruction.action == "E":
+            waypoint_position.x += instruction.value
+        elif instruction.action == "W":
+            waypoint_position.x -= instruction.value
+        elif instruction.action == "L":
+            waypoint_position = rotate(waypoint_position, instruction.value)
+        elif instruction.action == "R":
+            waypoint_position = rotate(waypoint_position, -instruction.value)
+        elif instruction.action == "F":
+            position.x += waypoint_position.x * instruction.value
+            position.y += waypoint_position.y * instruction.value
+
+    return round(abs(position.x) + abs(position.y))
+
+
+assert detect_final_position_with_waypoint(build_instructions(sample_input)) == 286
+
+solution_part2 = detect_final_position_with_waypoint(build_instructions(puzzle_input))
+print(f"solution part2: {solution_part2}")
+assert solution_part2 == 24769
