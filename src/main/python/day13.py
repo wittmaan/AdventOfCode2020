@@ -11,7 +11,6 @@ sample_input = """939
 
 
 def find_earliest_bus(dat: List[str]) -> int:
-
     earliest_timestamp_departure = int(dat[0])
     bus_ids = [int(_) for _ in dat[1].split(",") if _ != "x"]
     print(f"earliest_timestamp_departure {earliest_timestamp_departure} bus_ids {bus_ids}")
@@ -42,6 +41,52 @@ assert solution_part1 == 104
 
 
 # --- Part two ---
+
+# @dataclass
+
+
+def find_matching_order(dat: List[str]) -> int:
+    bus_id_departures = [(int(val), idx) for idx, val in enumerate(dat[1].split(",")) if val != "x"]
+    print(bus_id_departures)
+
+    target_order = [_[0] for _ in bus_id_departures]
+    print(target_order)
+
+    actual_timestamps = dict.fromkeys(target_order, 0)
+    print(actual_timestamps)
+
+    for val in range(1000000):
+
+        for bus_id in target_order:
+            if val % bus_id == 0:
+                actual_timestamps[bus_id] += bus_id
+
+        tmp = [val % _ == 0 for _ in target_order]
+
+        tmp2 = sorted(actual_timestamps.items(), key=lambda item: item[1])
+
+        is_target_order_match = [_[0] for _ in tmp2] == target_order
+
+        if val > 0 and tmp[0] is True and tmp[-1] is True and is_target_order_match:
+            break
+
+    print(tmp)
+    print(val)
+    print(actual_timestamps)
+
+    # for _ in range(10):
+    #     for bus_id, departure_minutes in bus_id_departures:
+    #         actual_timestamps[bus_id] += departure_minutes
+    #
+    #     tmp = sorted(actual_timestamps.items(), key=lambda item: item[1])
+    #     print(tmp)
+    #
+    # print(actual_timestamps)
+
+    return 0
+
+
+find_matching_order(sample_input)
 
 
 # solution_part2 = detect_final_position_with_waypoint(build_instructions(puzzle_input))
