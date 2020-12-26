@@ -1,8 +1,4 @@
-import fileinput
 from collections import Counter, defaultdict
-from copy import deepcopy
-from itertools import product
-from typing import List
 
 # --- Day 15: Rambunctious Recitation ---
 # --- Part one ---
@@ -19,13 +15,13 @@ class Memory:
         for idx, val in enumerate(numbers):
             self.indices[val].append(idx)
 
-    def is_seen_first(self, number_to_check: int):
-        return self.counter[number_to_check] == 1
-
     def is_seen_before(self, number_to_check: int):
         indices = self.indices[number_to_check]
         if len(indices) == 0:
             return False
+        elif len(indices) == 1:
+            self.new_value = 0
+            return True
         elif len(indices) > 1:
             self.new_value = indices[-1] - indices[-2]
             return True
@@ -44,10 +40,7 @@ def get_number_spoken(dat: str, at_turn: int = None) -> int:
 
     last_number = None
     while turn < at_turn:
-        if memory.is_seen_first(last_number):
-            numbers[turn] = 0
-            memory.update(0, turn)
-        elif memory.is_seen_before(last_number):
+        if memory.is_seen_before(last_number):
             numbers[turn] = memory.new_value
             memory.update(memory.new_value, turn)
 
