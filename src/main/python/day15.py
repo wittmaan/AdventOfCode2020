@@ -38,6 +38,9 @@ def get_number_spoken(dat: str, at_turn: int = None) -> int:
 
     last_number = None
     while turn < at_turn:
+        if turn % 100000 == 0:
+            print(f" {turn} / {at_turn}")
+
         if memory.is_seen_before(last_number):
             numbers[turn] = memory.new_value
             memory.update(memory.new_value, turn)
@@ -65,14 +68,8 @@ assert solution_part1 == 410
 
 # --- Part two ---
 
-# sample_input2 = """mask = 000000000000000000000000000000X1001X
-# mem[42] = 100
-# mask = 00000000000000000000000000000000X0XX
-# mem[26] = 1""".split(
-#     "\n"
-# )
-#
-# assert program(sample_input2, floating_mode=True) == 208
-# solution_part2 = program(puzzle_input, floating_mode=True)
-# print(f"solution part2: {solution_part2}")
-# assert solution_part2 == 2881082759597
+assert get_number_spoken(sample_input, at_turn=30000000) == 175594
+
+solution_part2 = get_number_spoken("7,12,1,0,16,2", at_turn=30000000)
+print(f"solution part2: {solution_part2}")
+assert solution_part2 == 238
