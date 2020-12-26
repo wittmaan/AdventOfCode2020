@@ -1,4 +1,4 @@
-from collections import Counter, defaultdict
+from collections import defaultdict
 
 # --- Day 15: Rambunctious Recitation ---
 # --- Part one ---
@@ -8,7 +8,6 @@ sample_input = "0,3,6"
 
 class Memory:
     def __init__(self, numbers):
-        self.counter = Counter(numbers)
         self.new_value = None
 
         self.indices = defaultdict(list)
@@ -27,7 +26,6 @@ class Memory:
             return True
 
     def update(self, number: int, idx: int):
-        self.counter[number] += 1
         self.indices[number].append(idx)
 
 
