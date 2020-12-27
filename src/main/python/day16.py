@@ -41,45 +41,53 @@ class Field:
         return result
 
 
-def get_error_rate(dat: List[str]) -> int:
-    mode = FIELD_RANGES
-    nearby_tickets = []
-    fields = []
+class TicketTranslation:
+    def __init__(self, dat: List[str]):
+        self.fields = []
+        self.nearby_tickets = []
+        self.your_tickets = None
+        self.fill(dat)
 
-    for d in dat:
-        if d == "":
-            continue
-        elif d.startswith("your ticket"):
-            mode = YOUR_TICKET
-            continue
-        elif d.startswith("nearby tickets"):
-            mode = NEARBY_TICKETS
-            continue
+    def get_error_rate(self) -> int:
+        # print(f"nearby_tickets {nearby_tickets}")
 
-        if mode == FIELD_RANGES:
-            field_name, value_range = d.split(": ")
-            fields.append(Field(field_name, value_range))
-        elif mode == YOUR_TICKET:
-            your_tickets = [int(_) for _ in d.split(",")]
-            # print(f"your_tickets {your_tickets}")
-        elif mode == NEARBY_TICKETS:
-            sub_nearby_tickets = [int(_) for _ in d.split(",")]
-            nearby_tickets.extend(sub_nearby_tickets)
+        invalid_nearby_tickets = []
+        for nearby_ticket in self.nearby_tickets:
+            if not any([nearby_ticket in field.values for field in self.fields]):
+                invalid_nearby_tickets.append(nearby_ticket)
 
-    # print(f"nearby_tickets {nearby_tickets}")
+        return sum(invalid_nearby_tickets)
 
-    invalid_nearby_tickets = []
-    for nearby_ticket in nearby_tickets:
-        if not any([nearby_ticket in field.values for field in fields]):
-            invalid_nearby_tickets.append(nearby_ticket)
+    def fill(self, dat: List[str]):
+        mode = FIELD_RANGES
 
-    return sum(invalid_nearby_tickets)
+        for d in dat:
+            if d == "":
+                continue
+            elif d.startswith("your ticket"):
+                mode = YOUR_TICKET
+                continue
+            elif d.startswith("nearby tickets"):
+                mode = NEARBY_TICKETS
+                continue
+
+            if mode == FIELD_RANGES:
+                field_name, value_range = d.split(": ")
+                self.fields.append(Field(field_name, value_range))
+            elif mode == YOUR_TICKET:
+                self.your_tickets = [int(_) for _ in d.split(",")]
+                # print(f"your_tickets {your_tickets}")
+            elif mode == NEARBY_TICKETS:
+                sub_nearby_tickets = [int(_) for _ in d.split(",")]
+                self.nearby_tickets.extend(sub_nearby_tickets)
 
 
-assert get_error_rate(sample_input) == 71
+tt = TicketTranslation(sample_input)
+assert tt.get_error_rate() == 71
 
 puzzle_input = [_.strip() for _ in fileinput.input()]
-solution_part1 = get_error_rate(puzzle_input)
+tt = TicketTranslation(puzzle_input)
+solution_part1 = tt.get_error_rate()
 print(f"solution part1: {solution_part1}")
 assert solution_part1 == 25895
 
