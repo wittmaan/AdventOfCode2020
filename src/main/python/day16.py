@@ -25,12 +25,6 @@ nearby tickets:
 )
 
 
-# @dataclass
-# class Field:
-#     name: str
-#     values: List[int] = field(default_factory=create_list)
-
-
 class Field:
     def __init__(self, name, input_str):
         self.name = name
