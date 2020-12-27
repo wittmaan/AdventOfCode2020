@@ -23,6 +23,7 @@ class Memory:
             return True
         elif len(indices) > 1:
             self.new_value = indices[-1] - indices[-2]
+            self.indices[number_to_check] = indices[-2:]
             return True
 
     def update(self, number: int, idx: int):
