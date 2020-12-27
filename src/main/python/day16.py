@@ -59,7 +59,6 @@ def get_error_rate(dat: List[str]) -> int:
         if mode == FIELD_RANGES:
             field_name, value_range = d.split(": ")
             fields.append(Field(field_name, value_range))
-
         elif mode == YOUR_TICKET:
             your_tickets = [int(_) for _ in d.split(",")]
             # print(f"your_tickets {your_tickets}")
