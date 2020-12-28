@@ -1,4 +1,5 @@
 import fileinput
+from collections import defaultdict
 from typing import List
 
 # --- Day 16: Ticket Translation ---
@@ -29,8 +30,6 @@ class Field:
     def __init__(self, name, input_str):
         self.name: str = name
         self.values: List[int] = Field.create_list(input_str)
-        self.position = None
-        self.ticket = None
 
     @staticmethod
     def create_list(input_str: str) -> List[int]:
@@ -41,9 +40,6 @@ class Field:
             result.extend([int(_) for _ in range(int(splitted[0]), int(splitted[1]) + 1)])
 
         return result
-
-    def __lt__(self, other):
-        return self.position < other.position
 
 
 class TicketTranslation:
@@ -102,45 +98,39 @@ class TicketTranslation:
                 sub_nearby_tickets = [int(_) for _ in d.split(",")]
                 self.nearby_tickets.append(sub_nearby_tickets)
 
-    def get_departure_values(self):
-        TicketTranslation.assign_positions(self.nearby_tickets, self.fields)
-        self.update_fields()
-        TicketTranslation.assign_positions(self.your_tickets, self.fields)
+    def build_mapping(self):
+        candidates = defaultdict(set)
+        for field in self.fields:
+            for idx in range(len(self.fields)):
+                is_matching = True
+                for ticket in self.nearby_tickets:
+                    if not ticket[idx] in field.values:
+                        is_matching = False
+                        break
+
+                if is_matching:
+                    candidates[field.name].add(idx)
+
+        candidates = list(candidates.items())
+        candidates.sort(key=lambda x: len(x[1]))
+
+        field_index_mapping = {}
+        for name, indices in candidates:
+            if len(indices) == 1:
+                actual_index = indices.pop()
+                field_index_mapping[name] = actual_index
+
+                # remove actual_index from remaining candidates
+                for other_name, other_indices in candidates:
+                    if other_name != name:
+                        other_indices.discard(actual_index)
 
         result = 1
-        for field in self.fields:
-            if field.name.startswith("departure"):
-                result *= field.ticket
+        for name, index in field_index_mapping.items():
+            if name.startswith("departure"):
+                result *= self.your_tickets[index]
+
         return result
-
-    @staticmethod
-    def assign_positions(tickets, fields):
-        position = 1
-        for ticket in tickets:
-            for field in fields:
-                if all(t in field.values for t in ticket) and not field.position:
-                    field.position = position
-                    field.ticket = ticket
-                    position += 1
-                    break
-
-
-    def update_fields(self):
-        # check remaining fields
-        position = -1
-        for field in self.fields:
-            if field.position and field.position > position:
-                position = field.position
-
-        for field in self.fields:
-            if not field.position:
-                position += 1
-                field.position = position
-
-        self.fields.sort()
-        for field in self.fields:
-            field.position = None
-            field.ticket = None
 
 
 tt_sample = TicketTranslation(sample_input)
@@ -152,7 +142,6 @@ tt = TicketTranslation(puzzle_input)
 solution_part1 = tt.get_error_rate()
 print(f"solution part1: {solution_part1}")
 assert solution_part1 == 25895
-
 
 # --- Part two ---
 
@@ -173,8 +162,8 @@ nearby tickets:
 tt_sample2 = TicketTranslation(sample_input2)
 assert tt_sample2.get_error_rate() == 0
 assert tt_sample2.invalid_values == []
-assert tt_sample2.get_departure_values() == 1
+assert tt_sample2.build_mapping() == 1
 
-#solution_part2 = tt.get_departure_values()
-#print(f"solution part2: {solution_part2}")
-# assert solution_part1 == 25895
+solution_part2 = tt.build_mapping()
+print(f"solution part2: {solution_part2}")
+assert solution_part2 == 5865723727753
