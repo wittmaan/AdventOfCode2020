@@ -1,12 +1,14 @@
 # --- Day 18: Operation Order ---
 # --- Part one ---
+import fileinput
+from typing import List
 
 
 class Expression:
     def __init__(self):
         self.content = []
 
-    def add(self, val):
+    def append(self, val):
         self.content.append(val)
 
     def calc(self):
@@ -30,36 +32,48 @@ class Expression:
         return value
 
 
-def calculate(input_dat: str):
-    dat = input_dat.replace(" ", "")
+class Calculator:
+    def __init__(self, input_dat: str):
+        self.dat = input_dat.replace(" ", "")
+        self.expression_depth = 0
+        self.expressions = {self.expression_depth: Expression()}
+        self.result = self.run()
 
-    expression_depth = 0
-    expressions = {expression_depth: Expression()}
+    def run(self):
+        for idx, val in enumerate(self.dat):
+            if val == "(":
+                self.expression_depth += 1
+                self.expressions[self.expression_depth] = Expression()
+                self.expressions[self.expression_depth - 1].append(self.expressions[self.expression_depth])
+            elif val == ")":
+                self.expressions[self.expression_depth - 1].content[-1] = self.expressions[self.expression_depth].calc()
+                self.expression_depth -= 1
+            else:
+                self.expressions[self.expression_depth].append(val)
 
-    for idx, val in enumerate(dat):
-        if val == "(":
-            expression_depth += 1
-            expressions[expression_depth] = Expression()
-            expressions[expression_depth - 1].add(expressions[expression_depth])
-        elif val == ")":
-            expressions[expression_depth - 1].content[-1] = expressions[expression_depth].calc()
-            expression_depth -= 1
-        else:
-            expressions[expression_depth].add(val)
-
-    return expressions[expression_depth].calc()
+        return self.expressions[self.expression_depth].calc()
 
 
-assert calculate("1 + 2 * 3 + 4 * 5 + 6") == 71
-assert calculate("1 + (2 * 3) + (4 * (5 + 6))") == 51
-assert calculate("2 * 3 + (4 * 5)") == 26
-assert calculate("5 + (8 * 3 + 9 + 3 * 4 * 3)") == 437
-assert calculate("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))") == 12240
-assert calculate("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2") == 13632
+assert Calculator("1 + 2 * 3 + 4 * 5 + 6").result == 71
+assert Calculator("1 + (2 * 3) + (4 * (5 + 6))").result == 51
+assert Calculator("2 * 3 + (4 * 5)").result == 26
+assert Calculator("5 + (8 * 3 + 9 + 3 * 4 * 3)").result == 437
+assert Calculator("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))").result == 12240
+assert Calculator("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2").result == 13632
 
-# solution_part1 = run(dat=puzzle_input, dim=3)
-# print(f"solution part1: {solution_part1}")
-# assert solution_part1 == 286
+
+def sum_up_expressions(dat: List[str]):
+    value = 0
+    for d in dat:
+        value += Calculator(d).result
+
+    return value
+
+
+puzzle_input = [_.strip() for _ in fileinput.input()]
+solution_part1 = sum_up_expressions(puzzle_input)
+print(f"solution part1: {solution_part1}")
+assert solution_part1 == 21347713555555
 
 # --- Part two ---
 
